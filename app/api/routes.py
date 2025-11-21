@@ -44,12 +44,12 @@ async def secure_query(
     
     is_safe = llm_service.validate_user_input(query, block_conditions)
     
-    intent_tag = llm_service.interpret_user_intent(query)
 
     response = "I'm sorry, I cannot do that for you. Do you have any other requests related to your account or financials?"
 
     if is_safe:
     
+        intent_tag = llm_service.interpret_user_intent(query)
         if current_user:
             context = await get_context_for_intent(intent_tag, current_user.username)
         else:
