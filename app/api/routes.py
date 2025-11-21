@@ -98,7 +98,8 @@ async def get_context_for_intent(intent_tag: str, username: str = None) -> str:
         return "\n\n".join([item['info'] for item in data_items]) if data_items else ""
 
 @router.get("/users/me")
-async def get_current_user_info(current_user: Optional[User] = Depends(get_optional_user)):
+@limiter.limit('10/minute')
+async def get_current_user_info(request: Request, current_user: Optional[User] = Depends(get_optional_user)):
     if not current_user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
