@@ -1,6 +1,8 @@
 from datetime import timedelta
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
+
+from app.config.rate_limiter_service import limiter
 
 from app.auth.jwt import (
     Token, 
@@ -13,7 +15,8 @@ from app.auth.jwt import (
 router = APIRouter()
 
 @router.post("/token", response_model=Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+@limiter.limit('10/minute')
+async def login_for_access_token(request:Request, form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(fake_users_db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
